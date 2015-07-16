@@ -36,7 +36,6 @@ void loop() {
 	readIR();
 	checkButton();
 	blinkFunction();
-	delay(100);
 }
 
 void readIR() { //Reads IR signals and stores received values
