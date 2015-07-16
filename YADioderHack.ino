@@ -1,9 +1,12 @@
-#include <IRremote.h> //Library for IR recivers and LED for Arduino
+// #include <IRremote.h> //Library for IR recivers and LED for Arduino
+#include "IRLremote.h"
 
 #include "IRcodes.h" //IR codes for keys
 
-const uint8_t RECEIVER_PIN = 12;
+// const uint8_t RECEIVER_PIN = 12;
 const uint8_t ledPin = 13;
+#define IRL_BLOCKING true
+#define pinIR 2
 int pressedButton;
 uint8_t currentStrip = 1;
 uint8_t currentColor = 0;
@@ -28,9 +31,14 @@ struct blink_t {
 	int duration;
 };
 blink_t blinkVar = {0, 0, 0};
+uint8_t IRProtocol = 0;
+uint16_t IRAddress = 0;
+uint32_t IRCommand = 0;
+uint32_t lastCommand = 0;
+unsigned long receivedTime = 0;
 
-IRrecv irReceiver(RECEIVER_PIN);
-decode_results irData;
+// IRrecv irReceiver(RECEIVER_PIN);
+// decode_results irData;
 
 void setup() {
 	Serial.begin(9600);
@@ -41,83 +49,106 @@ void setup() {
 	pinMode(strip2.REDPIN, OUTPUT);
 	pinMode(strip2.GREENPIN, OUTPUT);
 	pinMode(strip2.BLUEPIN, OUTPUT);
-	irReceiver.enableIRIn();
+	attachInterrupt(digitalPinToInterrupt(pinIR), IRLinterrupt<IR_ALL>, CHANGE);
+	// irReceiver.enableIRIn();
 }
 
 void loop() {
-	readIR();
+	uint8_t oldSREG = SREG;
+	cli();
+	// readIR();
 	checkButton();
 	blinkFunction();
+	SREG = oldSREG;
 }
 
-void readIR() { //Reads IR signals and stores received values
-	if (irReceiver.decode(&irData)) { //If the IR receiver has received data
-		pressedButton = irData.value;
-		irReceiver.resume();
-	} else {
-		pressedButton = NULL;
-	}
+// void readIR() { //Reads IR signals and stores received values
+// 	if (irReceiver.decode(&irData)) { //If the IR receiver has received data
+// 		pressedButton = irData.value;
+// 		irReceiver.resume();
+// 	} else {
+// 		pressedButton = NULL;
+// 	}
+// }
+void IREvent(uint8_t protocol, uint16_t address, uint32_t command) {
+  // called when directly received a valid IR signal.
+  // do not use Serial inside, it can crash your program!
+
+  // dont update value if blocking is enabled
+  if (IRL_BLOCKING && !IRProtocol) {
+    // update the values to the newest valid input
+    IRProtocol = protocol;
+    IRAddress = address;
+    IRCommand = command;
+  }
 }
 
 void checkButton() { //Checks the pressed button and do actions
-	switch (pressedButton) {
-	    case BTNPOWER:
-	      Serial.println("power");
-	      if (modified) {
-	      	applyColor();
-	      }
-	      currentDigit = 0;
-	      if (currentStrip == 1) {
-	      	currentStrip = 2;
-	      	blinkFor(250);
-	      } else {
-	      	currentStrip = 1;
-	      	blinkFor(100);
-	      }
-	      break;
-	    case BTNRED:
-	      Serial.println("red");
-	      currentColor = 0;
-	      blinkFor(100);
-	      break;
-	    case BTNGREEN:
-	      currentColor = 1;
-	      blinkFor(100);
-	      break;
-	    case BTNBLUE:
-	      currentColor = 2;
-	      blinkFor(100);
-	      break;
-	    case BTN1:
-	      insert(1);
-	      break;
-	    case BTN2:
-	      insert(2);
-	      break;
-	    case BTN3:
-	      insert(3);
-	      break;
-	    case BTN4:
-	      insert(4);
-	      break;
-	    case BTN5:
-	      insert(5);
-	      break;
-	    case BTN6:
-	      insert(6);
-	      break;
-	    case BTN7:
-	      insert(7);
-	      break;
-	    case BTN8:
-	      insert(8);
-	      break;
-	    case BTN9:
-	      insert(9);
-	      break;
-	    case BTN0:
-	      insert(0);
-	      break;
+	if (IRProtocol) {
+		if (millis() > receivedTime + 50) {
+			Serial.println(IRCommand);
+			switch (IRCommand) {
+			    case BTNPOWER:
+			      Serial.println("power");
+			      if (modified) {
+			      	applyColor();
+			      }
+			      currentDigit = 0;
+			      if (currentStrip == 1) {
+			      	currentStrip = 2;
+			      	blinkFor(250);
+			      } else {
+			      	currentStrip = 1;
+			      	blinkFor(100);
+			      }
+			      break;
+			    case BTNRED:
+			      Serial.println("red");
+			      currentColor = 0;
+			      blinkFor(100);
+			      break;
+			    case BTNGREEN:
+			      currentColor = 1;
+			      blinkFor(100);
+			      break;
+			    case BTNBLUE:
+			      currentColor = 2;
+			      blinkFor(100);
+			      break;
+			    case BTN1:
+			      insert(1);
+			      break;
+			    case BTN2:
+			      insert(2);
+			      break;
+			    case BTN3:
+			      insert(3);
+			      break;
+			    case BTN4:
+			      insert(4);
+			      break;
+			    case BTN5:
+			      insert(5);
+			      break;
+			    case BTN6:
+			      insert(6);
+			      break;
+			    case BTN7:
+			      insert(7);
+			      break;
+			    case BTN8:
+			      insert(8);
+			      break;
+			    case BTN9:
+			      insert(9);
+			      break;
+			    case BTN0:
+			      insert(0);
+			      break;
+			}
+			receivedTime = millis();
+		}
+		IRProtocol = 0;
 	}
 }
 
