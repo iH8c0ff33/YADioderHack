@@ -1,42 +1,42 @@
 #ifndef BTNPOWER
-#define BTNPOWER 0xF4BA2988
+#define BTNPOWER 3174891648
 #endif
 #ifndef BTNRED
-#define BTNRED 0xDAEA83EC
+#define BTNRED 4033872000
 #endif
 #ifndef BTNGREEN
-#define BTNGREEN 0x2BAFCEEC
+#define BTNGREEN 4050714752
 #endif
 #ifndef BTNBLUE
-#define BTNBLUE 0x71A1FE88
+#define BTNBLUE 4084400256
 #endif
 #ifndef BTN1
-#define BTN1 0xE13DDA28
+#define BTN1 2416967808
 #endif
 #ifndef BTN2
-#define BTN2 0xAD586662
+#define BTN2 2433810560
 #endif
 #ifndef BTN3
-#define BTN3 0x273009C4
+#define BTN3 2450653312
 #endif
 #ifndef BTN4
-#define BTN4 0xF5999288
+#define BTN4 2467496064
 #endif
 #ifndef BTN5
-#define BTN5 0x731A3E02
+#define BTN5 2484338816
 #endif
 #ifndef BTN6
-#define BTN6 0x2C452C6C
+#define BTN6 2501181568
 #endif
 #ifndef BTN7
-#define BTN7 0x4592E14C
+#define BTN7 2518024320
 #endif
 #ifndef BTN8
-#define BTN8 0x6825E53E
+#define BTN8 2534867072
 #endif
 #ifndef BTN9
-#define BTN9 0x8B8510E8
+#define BTN9 2551709824
 #endif
 #ifndef BTN0
-#define BTN0 0xB9F56762
+#define BTN0 2568552576
 #endif
