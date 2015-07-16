@@ -71,10 +71,6 @@ void loop() {
 // 	}
 // }
 void IREvent(uint8_t protocol, uint16_t address, uint32_t command) {
-  // called when directly received a valid IR signal.
-  // do not use Serial inside, it can crash your program!
-
-  // dont update value if blocking is enabled
   if (IRL_BLOCKING && !IRProtocol) {
     // update the values to the newest valid input
     IRProtocol = protocol;
