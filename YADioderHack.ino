@@ -2,13 +2,15 @@
 #include <IRremote.h> //Library for IR recivers and LED for Arduino
 /* END Libraries */
 /* Variables */
+//Header
+#include "IRcodes.h" //IR codes for keys
 //IRremote
-const int RECEIVER_PIN = 11; //IR receiver pin
+const int RECEIVER_PIN = 11;
 /* END Variables */
 /* Configuration */
 //IRremote
-IRrecv irReceiver(RECEIVER_PIN); //IR receiver object
-decode_results irData; //Define custom type for storing IR receiver data
+IRrecv irReceiver(RECEIVER_PIN);
+decode_results irData;
 /* END Configuration */
 /* Arduino Setup */
 void setup() {
@@ -19,8 +21,10 @@ void setup() {
 /* Arduino Loop */
 void loop() {
 	if (irReceiver.decode(&irData)) { //If the receiver succeeds in decoding data (address of variable where to store the received data)
-		Serial.println(irData.value, HEX); //Print the value stored in irData treating it as HEX
-		irReceiver.resume(); //Tell the IR receiver to resume receiving data
+		Serial.println(irData.value, HEX);
+		if (irData.value == POWER) {
+			Serial.println("POWER");
+		}
+		irReceiver.resume();
 	}
-	delay(100); //Wait 100ms not to flood the serial line
-}
+	delay(100);
