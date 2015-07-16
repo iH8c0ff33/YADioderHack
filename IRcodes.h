@@ -1,7 +1,7 @@
 #ifndef BTNPOWER
 #define BTNPOWER 0xF4BA2988
 #endif
-#ifndef RED
+#ifndef BTNRED
 #define BTNRED 0xDAEA83EC
 #endif
 #ifndef BTNGREEN
