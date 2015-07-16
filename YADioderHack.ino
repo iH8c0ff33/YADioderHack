@@ -5,7 +5,13 @@
 const uint8_t RECEIVER_PIN = 12;
 const uint8_t ledPin = 13;
 int pressedButton;
+uint8_t currentStrip = 1;
+uint8_t currentColor = 0;
+uint8_t currentDigit = 0;
+uint8_t digits[3] = {0, 0, 0};
+uint8_t color[3] = {0, 0, 0};
 bool ledOn = false;
+bool modified = false;
 struct strip {
 	const uint8_t REDPIN;
 	const uint8_t GREENPIN;
@@ -29,6 +35,12 @@ decode_results irData;
 void setup() {
 	Serial.begin(9600);
 	pinMode(ledPin, OUTPUT);
+	pinMode(strip1.REDPIN, OUTPUT);
+	pinMode(strip1.GREENPIN, OUTPUT);
+	pinMode(strip1.BLUEPIN, OUTPUT);
+	pinMode(strip2.REDPIN, OUTPUT);
+	pinMode(strip2.GREENPIN, OUTPUT);
+	pinMode(strip2.BLUEPIN, OUTPUT);
 	irReceiver.enableIRIn();
 }
 
@@ -51,34 +63,60 @@ void checkButton() { //Checks the pressed button and do actions
 	switch (pressedButton) {
 	    case BTNPOWER:
 	      Serial.println("power");
+	      if (modified) {
+	      	applyColor();
+	      }
+	      currentDigit = 0;
+	      if (currentStrip == 1) {
+	      	currentStrip = 2;
+	      	blinkFor(250);
+	      } else {
+	      	currentStrip = 1;
+	      	blinkFor(100);
+	      }
 	      break;
 	    case BTNRED:
 	      Serial.println("red");
-	      blinkFor(1000);
+	      currentColor = 0;
+	      blinkFor(100);
 	      break;
 	    case BTNGREEN:
+	      currentColor = 1;
+	      blinkFor(100);
 	      break;
 	    case BTNBLUE:
+	      currentColor = 2;
+	      blinkFor(100);
 	      break;
 	    case BTN1:
+	      insert(1);
 	      break;
 	    case BTN2:
+	      insert(2);
 	      break;
 	    case BTN3:
+	      insert(3);
 	      break;
 	    case BTN4:
+	      insert(4);
 	      break;
 	    case BTN5:
+	      insert(5);
 	      break;
 	    case BTN6:
+	      insert(6);
 	      break;
 	    case BTN7:
+	      insert(7);
 	      break;
 	    case BTN8:
+	      insert(8);
 	      break;
 	    case BTN9:
+	      insert(9);
 	      break;
 	    case BTN0:
+	      insert(0);
 	      break;
 	}
 }
@@ -103,4 +141,58 @@ void blinkFor(int duration) { //Sets the variables for turning on the LED
 	blinkVar.active = true;
 	blinkVar.duration = duration;
 	blinkVar.time = millis();
+}
+
+void insert(uint8_t number) { //Inserts the pressed button number into the current digit and if there are 3 digits stores the color
+	blinkFor(100);
+	if (currentDigit < 3) {
+		digits[currentDigit] = number;
+		currentDigit++;
+	}
+	if (currentDigit == 3) {
+		writeColor();
+		currentDigit = 0;
+	}
+}
+
+void writeColor() { //Writes all the digits into one single color 0,255
+	if (digits[0] * 100 + digits[1] * 10 + digits[2] < 256) {
+		color[currentColor] = digits[0] * 100 + digits[1] * 10 + digits[2];
+		blinkFor(250);
+		Serial.println(color[currentColor]);
+		modified = true;
+	} else {
+		blinkFor(1000);
+	}
+}
+
+void applyColor() { //Writes components into the strip
+	Serial.print("R: ");
+	Serial.print(color[0]);
+	Serial.print("\nG: ");
+	Serial.print(color[1]);
+	Serial.print("\nB: ");
+	Serial.print(color[2]);
+	Serial.print("\n");
+	if (currentStrip == 1) {
+		strip1.red = color[0];
+		strip1.green = color[1];
+		Serial.println(strip1.green);
+		strip1.blue = color[2];
+	} else {
+		strip2.red = color[0];
+		strip2.green = color[1];
+		strip2.blue = color[2];
+	}
+	refresh();
+	modified = false;
+}
+
+void refresh() { //Apply the selected colors to all the strips
+	analogWrite(strip1.REDPIN, strip1.red);
+	analogWrite(strip1.GREENPIN, strip1.green);
+	analogWrite(strip1.BLUEPIN, strip1.blue);
+	analogWrite(strip2.REDPIN, strip2.red);
+	analogWrite(strip2.GREENPIN, strip2.green);
+	analogWrite(strip2.BLUEPIN, strip2.blue);
 }
