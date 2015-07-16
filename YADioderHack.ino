@@ -1,6 +1,10 @@
 #include <IRremote.h> //Library for IR recivers and LED for Arduino
+
 #include "IRcodes.h" //IR codes for keys
+
 const int RECEIVER_PIN = 11;
+unsigned long now = 0;
+
 IRrecv irReceiver(RECEIVER_PIN);
 decode_results irData;
 
@@ -10,11 +14,15 @@ void setup() {
 }
 
 void loop() {
-	if (irReceiver.decode(&irData)) { //If the receiver succeeds in decoding data (address of variable where to store the received data)
-		Serial.println(irData.value, HEX);
-		if (irData.value == POWER) {
-			Serial.println("POWER");
-		}
+	now = millis();
+	readIR();
+}
+
+void readIR() { //Reads IR signals and stores received values
+	if (irReceiver.decode(&irData)) { //If the IR receiver has received data
+		pressedButton = irData.value;
 		irReceiver.resume();
+	} else {
+		pressedButton = NULL;
 	}
-	delay(100);
+}
